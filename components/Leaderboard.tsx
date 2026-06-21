@@ -164,7 +164,7 @@ export default async function Leaderboard({ isAdmin = false }: { isAdmin?: boole
             return (
               <div
                 key={player.id}
-                className={`flex items-center justify-between p-3 sm:p-4 rounded-[16px] sm:rounded-[20px] shadow-sm transition-all ${isMe ? 'bg-[#EBFAF5] border border-[#00D68F]/30' : 'bg-white border border-transparent'
+                className={`flex items-center justify-between p-3 sm:p-4 rounded-[16px] sm:rounded-[20px] shadow-sm transition-all ${isMe ? 'bg-white border border-transparent' : 'bg-white border border-transparent'
                   }`}
               >
                 <div className="flex items-center gap-2.5 sm:gap-3.5">
@@ -198,11 +198,6 @@ export default async function Leaderboard({ isAdmin = false }: { isAdmin?: boole
                   <div className="flex flex-col">
                     <div className="flex items-center gap-2">
                       <p className="font-bold text-[12px] sm:text-[13px] text-gray-900">{firstName}</p>
-                      {isMe && (
-                        <span className="bg-[#00D68F]/10 text-[#00D68F] text-[8px] sm:text-[9px] font-black px-1.5 py-0.5 rounded-md uppercase tracking-wider">
-                          You
-                        </span>
-                      )}
                     </div>
                     <div className="flex items-center gap-1.5 mt-0.5">
                       <span className="text-[10px] sm:text-[11px] font-black text-[#00D68F]">{player.wins}W</span>

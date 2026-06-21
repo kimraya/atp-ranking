@@ -1,5 +1,10 @@
 import { createClient } from '@/lib/supabase/server';
-import { Plus } from 'lucide-react';
+import LogMatchModal from '@/components/LogMatchModal';
+import LiveMatchCard from '@/components/LiveMatchCard';
+import { Plus, Radio, Medal } from 'lucide-react';
+
+// Tell Next.js to always fetch fresh data on every load
+export const revalidate = 0;
 
 // Tell TypeScript exactly what data to expect from Supabase
 interface Player {
@@ -14,17 +19,26 @@ interface Player {
 // We pass `isAdmin` as a control switch (defaults to false if not provided)
 export default async function Leaderboard({ isAdmin = false }: { isAdmin?: boolean }) {
   const supabase = await createClient();
-  const { data, error } = await supabase
+
+  // 1. Fetch Players
+  const { data: playersData, error: playersError } = await supabase
     .from('players')
     .select('*')
     .order('total_points', { ascending: false });
 
-  if (error) {
-    console.error("🚨 SUPABASE ERROR:", error.message);
-  }
+  if (playersError) console.error("🚨 SUPABASE PLAYERS ERROR:", playersError.message);
 
-  // Apply our Player type to the fetched data
-  const safePlayers: Player[] = data || [];
+  // 2. Fetch Live Matches (New!)
+  const { data: liveMatches, error: matchesError } = await supabase
+    .from('matches')
+    .select('*')
+    .eq('status', 'in_progress');
+
+  if (matchesError) console.error("🚨 SUPABASE MATCHES ERROR:", matchesError.message);
+
+  // Apply our types to the fetched data
+  const safePlayers: Player[] = playersData || [];
+  const safeLiveMatches = liveMatches || [];
 
   // Used to identify your specific card row for the green "You" badge
   const currentUserName = "Kim Raya";
@@ -55,19 +69,15 @@ export default async function Leaderboard({ isAdmin = false }: { isAdmin?: boole
           </h1>
         </header>
 
-        {/* 🏆 Top Leader Hero Card - Added side margins on mobile so it doesn't touch screen edges */}
-        <div className="mx-3 sm:mx-0 mb-8 bg-[#E4E4E4] rounded-[24px] p-4 sm:p-6 shadow-xl relative overflow-hidden">
+        {/* 🏆 Top Leader Hero Card */}
+        <div className="mx-3 sm:mx-0 mb-6 bg-[#E4E4E4] rounded-[24px] p-4 sm:p-6 shadow-xl relative overflow-hidden">
           <p className="text-black text-[10px] sm:text-xs font-semibold mb-4 sm:mb-5 opacity-80">Current Leader · Season 2026</p>
 
-          {/* 🎯 Main Row: Kept grid-cols-3 but tightened gaps for mobile */}
           <div className="grid grid-cols-3 items-center mt-3 sm:mt-5 w-full relative z-10 gap-1 sm:gap-0">
-            
             {/* Left Column: Rank, Avatar, and Name */}
             <div className="flex flex-col justify-center justify-self-start">
               <div className="flex items-center gap-1.5 sm:gap-3 h-8 sm:h-10">
-                {/* Scaled text from 34px down to 22px on mobile */}
                 <p className="text-[22px] sm:text-[34px] leading-none font-black text-[#00D68F] tracking-tight">#1</p>
-
                 {topPlayer?.avatar_url ? (
                   <img
                     src={topPlayer.avatar_url}
@@ -79,7 +89,6 @@ export default async function Leaderboard({ isAdmin = false }: { isAdmin?: boole
                     {getInitials(topPlayer?.name)}
                   </div>
                 )}
-
                 <p className="text-[22px] sm:text-[34px] font-bold text-gray-900 tracking-tight leading-none truncate max-w-[70px] sm:max-w-none">
                   {topPlayer ? getFirstName(topPlayer.name) : 'TBD'}
                 </p>
@@ -109,6 +118,22 @@ export default async function Leaderboard({ isAdmin = false }: { isAdmin?: boole
           </div>
         </div>
 
+        {/* ⚡ LIVE MATCHES BLOCK (Only shows if a match is running) */}
+        {safeLiveMatches.length > 0 && (
+          <div className="mx-3 sm:mx-0 mb-6 space-y-3">
+            <h2 className="text-[10px] sm:text-xs font-bold text-gray-400 tracking-widest uppercase flex items-center gap-1.5 px-2 animate-pulse">
+              <Radio size={14} className="text-[#FF3B6A]" /> Live Now
+            </h2>
+
+            {/* 🚀 Here is where we inject the interactive card! */}
+            {safeLiveMatches.map((match) => (
+              <LiveMatchCard key={match.id} match={match} isAdmin={isAdmin} />
+            ))}
+
+          </div>
+        )}
+
+        {/* 📋 Leaderboard Rankings Header */}
         <div className="flex justify-between items-end px-5 sm:px-7 mb-3">
           <h2 className="text-[10px] sm:text-xs font-bold text-gray-400 tracking-widest uppercase">Current Rankings</h2>
           <span className="text-[10px] sm:text-xs font-medium text-gray-400">{safePlayers.length} players</span>
@@ -143,8 +168,19 @@ export default async function Leaderboard({ isAdmin = false }: { isAdmin?: boole
                   }`}
               >
                 <div className="flex items-center gap-2.5 sm:gap-3.5">
-                  <div className={`w-4 sm:w-5 text-center font-black text-base sm:text-lg ${rankColor}`}>
-                    {rank}
+                  {/* 🏅 NEW MEDAL RANK BLOCK */}
+                  <div className="w-5 sm:w-6 flex justify-center items-center shrink-0">
+                    {rank === 1 ? (
+                      <Medal className="text-yellow-500 fill-yellow-500/20 w-5 h-5 sm:w-6 sm:h-6 drop-shadow-sm" strokeWidth={2.5} />
+                    ) : rank === 2 ? (
+                      <Medal className="text-slate-400 fill-slate-400/20 w-5 h-5 sm:w-6 sm:h-6 drop-shadow-sm" strokeWidth={2.5} />
+                    ) : rank === 3 ? (
+                      <Medal className="text-amber-700 fill-amber-700/20 w-5 h-5 sm:w-6 sm:h-6 drop-shadow-sm" strokeWidth={2.5} />
+                    ) : (
+                      <span className="text-center font-black text-base sm:text-lg text-gray-300">
+                        {rank}
+                      </span>
+                    )}
                   </div>
 
                   {player.avatar_url ? (
@@ -186,14 +222,17 @@ export default async function Leaderboard({ isAdmin = false }: { isAdmin?: boole
         </div>
 
         {/* 🔒 This button ONLY shows up if isAdmin is TRUE */}
-        {isAdmin && (
+        {/* {isAdmin && (
           <div className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] sm:max-w-[calc(28rem-2.5rem)] px-2 sm:px-5 z-10">
             <button className="w-full bg-[#00D68F] hover:bg-[#00c483] text-white rounded-full py-3 sm:py-4 flex items-center justify-center gap-2 font-black text-[12px] sm:text-[13px] tracking-widest shadow-xl shadow-[#00D68F]/30 transition-transform active:scale-[0.98]">
               <Plus size={18} strokeWidth={3} className="w-4 h-4 sm:w-5 sm:h-5" />
               LOG NEW MATCH
             </button>
           </div>
-        )}
+        )} */}
+
+        {/* 🔒 Old button block replaced with interactive component */}
+        {isAdmin && <LogMatchModal players={safePlayers} />}
 
       </div>
     </main>

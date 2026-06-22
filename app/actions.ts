@@ -23,7 +23,7 @@ export async function startMatchAction(
     });
 
   if (error) {
-    console.error("🚨 Failed to create match:", error.message);
+    console.error("Failed to create match:", error.message);
     return { success: false, error: error.message };
   }
 
@@ -63,46 +63,49 @@ export async function resolveMatchAction(
       .select('wins, total_points')
       .eq('name', player)
       .single();
-    
-    if (fetchError) console.error(`🚨 Error fetching winner ${player}:`, fetchError.message);
-    
+
+    if (fetchError) console.error(`Error fetching winner ${player}:`, fetchError.message);
+
     if (data) {
       const { error: updateError } = await supabase
         .from('players')
-        .update({ 
-          wins: (data.wins || 0) + 1, 
-          total_points: (data.total_points || 0) + pointsEarned 
+        .update({
+          wins: (data.wins || 0) + 1,
+          total_points: (data.total_points || 0) + pointsEarned
         })
         .eq('name', player);
-      
-      if (updateError) console.error(`🚨 Error updating winner ${player}:`, updateError.message);
+
+      if (updateError) console.error(`Error updating winner ${player}:`, updateError.message);
     }
   }
 
-  // 4. Update Losers (+1 Loss)
+  // 4. Update Losers (+1 Loss, -Points)
   for (const player of losers) {
+    //  We must select 'total_points' here now so we can subtract from it!
     const { data, error: fetchError } = await supabase
       .from('players')
-      .select('losses')
+      .select('losses, total_points')
       .eq('name', player)
       .single();
 
-    if (fetchError) console.error(`🚨 Error fetching loser ${player}:`, fetchError.message);
+    if (fetchError) console.error(`Error fetching loser ${player}:`, fetchError.message);
 
     if (data) {
       const { error: updateError } = await supabase
         .from('players')
-        .update({ 
-          losses: (data.losses || 0) + 1 
+        .update({
+          losses: (data.losses || 0) + 1,
+          //Deduct the exact same amount the winner earned
+          total_points: (data.total_points || 0) - pointsEarned
         })
         .eq('name', player);
-      
-      if (updateError) console.error(`🚨 Error updating loser ${player}:`, updateError.message);
+
+      if (updateError) console.error(`Error updating loser ${player}:`, updateError.message);
     }
   }
 
   // 5. Clear cache for the ENTIRE app layout
   revalidatePath('/', 'layout');
-  
+
   return { success: true };
 }

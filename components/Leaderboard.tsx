@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import LogMatchModal from '@/components/LogMatchModal';
 import LiveMatchCard from '@/components/LiveMatchCard';
+import AddPlayerModal from '@/components/AddPlayerModal';
 import { Plus, Radio, Medal } from 'lucide-react';
 
 // Tell Next.js to always fetch fresh data on every load
@@ -59,7 +60,7 @@ export default async function Leaderboard({ isAdmin = false }: { isAdmin?: boole
   };
 
   return (
-    <main className="min-h-screen bg-[#F4F6F9] font-sans pb-28 relative overflow-x-hidden">
+    <main className="font-sans pb-28 relative overflow-x-hidden">
       <div className="max-w-2xl mx-auto w-full relative h-full">
         {/* Adjusted padding for mobile */}
         <header className="flex justify-between items-center p-4 sm:p-6">
@@ -216,18 +217,13 @@ export default async function Leaderboard({ isAdmin = false }: { isAdmin?: boole
           })}
         </div>
 
-        {/* 🔒 This button ONLY shows up if isAdmin is TRUE */}
-        {/* {isAdmin && (
-          <div className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] sm:max-w-[calc(28rem-2.5rem)] px-2 sm:px-5 z-10">
-            <button className="w-full bg-[#00D68F] hover:bg-[#00c483] text-white rounded-full py-3 sm:py-4 flex items-center justify-center gap-2 font-black text-[12px] sm:text-[13px] tracking-widest shadow-xl shadow-[#00D68F]/30 transition-transform active:scale-[0.98]">
-              <Plus size={18} strokeWidth={3} className="w-4 h-4 sm:w-5 sm:h-5" />
-              LOG NEW MATCH
-            </button>
+        {/* 🔒 Master Admin Control Dock */}
+        {isAdmin && (
+          <div className="fixed bottom-6 inset-x-0 mx-auto w-[calc(100%-2rem)] max-w-sm z-50 flex flex-col gap-2.5 px-2 sm:px-0">
+            <LogMatchModal players={safePlayers} />
+            <AddPlayerModal />
           </div>
-        )} */}
-
-        {/* 🔒 Old button block replaced with interactive component */}
-        {isAdmin && <LogMatchModal players={safePlayers} />}
+        )}
 
       </div>
     </main>

@@ -109,3 +109,43 @@ export async function resolveMatchAction(
 
   return { success: true };
 }
+
+// ------------------------------------------------------------------
+// ACTION 3: REGISTER A NEW PLAYER
+// ------------------------------------------------------------------
+export async function addPlayerAction(name: string, avatarUrl?: string) {
+  const supabase = await createClient();
+  const trimmedName = name.trim();
+
+  // 1. Edge-case safety optimization
+  if (!trimmedName) {
+    return { success: false, error: "Player name cannot be blank." };
+  }
+
+  // 2. Insert with strict baseline rules
+  const { error } = await supabase
+    .from('players')
+    .insert({
+      name: trimmedName,
+      avatar_url: avatarUrl?.trim() || null,
+      total_points: 1500, // Syncs perfectly with your reset baseline!
+      wins: 0,
+      losses: 0,
+    });
+
+  if (error) {
+    console.error("Failed to register player:", error.message);
+    
+    // Supabase standard error code for unique constraint violation
+    if (error.code === '23505') {
+      return { success: false, error: "A player with this name already exists." };
+    }
+    
+    return { success: false, error: error.message };
+  }
+
+  // 3. Clear global cache instantly across public and admin tracks
+  revalidatePath('/', 'layout');
+  
+  return { success: true };
+}

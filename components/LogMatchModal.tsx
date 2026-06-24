@@ -12,13 +12,13 @@ interface Player {
 export default function LogMatchModal({ players }: { players: Player[] }) {
   const [isOpen, setIsOpen] = useState(false);
   const [matchType, setMatchType] = useState<'singles' | 'doubles'>('singles');
-  
+
   // Form States
   const [t1p1, setT1p1] = useState('');
   const [t1p2, setT1p2] = useState('');
   const [t2p1, setT2p1] = useState('');
   const [t2p2, setT2p2] = useState('');
-  
+
   const [isPending, startTransition] = useTransition();
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -54,29 +54,28 @@ export default function LogMatchModal({ players }: { players: Player[] }) {
   return (
     <>
       {/* Floating Action Trigger Button */}
-      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] sm:max-w-[calc(28rem-2.5rem)] px-2 sm:px-5 z-10">
-        <button 
-          onClick={() => setIsOpen(true)}
-          className="w-full bg-[#00D68F] hover:bg-[#00c483] text-white rounded-full py-3 sm:py-4 flex items-center justify-center gap-2 font-black text-[12px] sm:text-[13px] tracking-widest shadow-xl shadow-[#00D68F]/30 transition-transform active:scale-[0.98]"
-        >
-          <Plus size={18} strokeWidth={3} className="w-4 h-4 sm:w-5 sm:h-5" />
-          LOG NEW MATCH
-        </button>
-      </div>
+      {/* Clean, un-positioned Log Match Trigger */}
+      <button
+        onClick={() => setIsOpen(true)}
+        className="w-full bg-[#00D68F] hover:bg-[#00c483] text-white rounded-full py-3.5 sm:py-4 flex items-center justify-center gap-2 font-black text-[11px] sm:text-[12px] tracking-widest shadow-xl shadow-[#00D68F]/20 transition-all active:scale-[0.98]"
+      >
+        <Plus size={16} strokeWidth={3} />
+        <span>LOG NEW MATCH</span>
+      </button>
 
       {/* Modal Overlay Backdrop */}
       {isOpen && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn">
           <div className="bg-white w-full max-w-md rounded-[28px] p-6 shadow-2xl relative space-y-6 max-h-[90vh] overflow-y-auto">
-            
+
             {/* Modal Header */}
             <div className="flex justify-between items-center">
               <div>
                 <h3 className="text-lg font-black text-gray-900 tracking-tight">START NEW MATCH</h3>
                 <p className="text-xs font-semibold text-gray-400">Set active match configurations</p>
               </div>
-              <button 
-                onClick={() => setIsOpen(false)} 
+              <button
+                onClick={() => setIsOpen(false)}
                 className="p-2 hover:bg-gray-100 rounded-full text-gray-400 hover:text-gray-700 transition-colors"
               >
                 <X size={18} strokeWidth={2.5} />
@@ -85,7 +84,7 @@ export default function LogMatchModal({ players }: { players: Player[] }) {
 
             {/* Config Form */}
             <form onSubmit={handleSubmit} className="space-y-5">
-              
+
               {/* Match Type Switcher */}
               <div className="bg-gray-100 p-1 rounded-xl grid grid-cols-2 text-center text-xs font-black tracking-wider">
                 <button
@@ -109,18 +108,18 @@ export default function LogMatchModal({ players }: { players: Player[] }) {
                 {/* Team 1 Selection */}
                 <div className="bg-[#EBFAF5] border border-[#00D68F]/20 p-4 rounded-2xl space-y-3">
                   <label className="block text-[10px] font-black text-[#00D68F] uppercase tracking-widest">TEAM 1 (Serving)</label>
-                  <select 
-                    value={t1p1} 
+                  <select
+                    value={t1p1}
                     onChange={(e) => setT1p1(e.target.value)}
                     className="w-full bg-white border border-gray-200 rounded-xl px-3 py-2.5 text-xs font-bold text-gray-800 focus:outline-none focus:border-[#00D68F]"
                   >
                     <option value="">Select Player...</option>
                     {players.map(p => <option key={p.id} value={p.name}>{p.name}</option>)}
                   </select>
-                  
+
                   {matchType === 'doubles' && (
-                    <select 
-                      value={t1p2} 
+                    <select
+                      value={t1p2}
                       onChange={(e) => setT1p2(e.target.value)}
                       className="w-full bg-white border border-gray-200 rounded-xl px-3 py-2.5 text-xs font-bold text-gray-800 focus:outline-none focus:border-[#00D68F]"
                     >
@@ -133,18 +132,18 @@ export default function LogMatchModal({ players }: { players: Player[] }) {
                 {/* Team 2 Selection */}
                 <div className="bg-red-50/50 border border-[#FF3B6A]/10 p-4 rounded-2xl space-y-3">
                   <label className="block text-[10px] font-black text-[#FF3B6A] uppercase tracking-widest">TEAM 2 (Receiving)</label>
-                  <select 
-                    value={t2p1} 
+                  <select
+                    value={t2p1}
                     onChange={(e) => setT2p1(e.target.value)}
                     className="w-full bg-white border border-gray-200 rounded-xl px-3 py-2.5 text-xs font-bold text-gray-800 focus:outline-none focus:border-[#FF3B6A]"
                   >
                     <option value="">Select Player...</option>
                     {players.map(p => <option key={p.id} value={p.name}>{p.name}</option>)}
                   </select>
-                  
+
                   {matchType === 'doubles' && (
-                    <select 
-                      value={t2p2} 
+                    <select
+                      value={t2p2}
                       onChange={(e) => setT2p2(e.target.value)}
                       className="w-full bg-white border border-gray-200 rounded-xl px-3 py-2.5 text-xs font-bold text-gray-800 focus:outline-none focus:border-[#FF3B6A]"
                     >

@@ -60,7 +60,7 @@ export default async function Leaderboard({ isAdmin = false }: { isAdmin?: boole
   };
 
   return (
-    <main className="font-sans pb-28 relative overflow-x-hidden">
+    <main className="bg-[#F4F6F9] font-sans pb-28 relative overflow-x-hidden">
       <div className="max-w-2xl mx-auto w-full relative h-full">
         {/* Adjusted padding for mobile */}
         <header className="flex justify-between items-center p-4 sm:p-6">

@@ -11,16 +11,20 @@ interface MatchRecord {
   score: string | null;
 }
 
+function formatMatchDate(dateString: string) {
+  const date = new Date(dateString);
+  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
+
 export default async function RecentMatches() {
   const supabase = await createClient();
 
-  // 1. Fetch exactly 4 matches to make a pristine 2x2 grid layout
   const { data: matches, error } = await supabase
     .from('matches')
     .select('*')
     .eq('status', 'completed')
     .order('created_at', { ascending: false })
-    .limit(4); // 👈 Changed from 5 to 4 for mathematical grid balance
+    .limit(4); 
 
   if (error) {
     console.error("🚨 Error fetching recent matches:", error.message);
@@ -32,12 +36,11 @@ export default async function RecentMatches() {
   }
 
   return (
-    <div className="w-full max-w-[calc(100%-2rem)] sm:max-w-2xl mx-auto -mt-12 mb-28 z-10 relative">
+    <div className="w-full max-w-[calc(100%-2rem)] sm:max-w-2xl mx-auto mt-4 mb-28 z-10 relative">
       <h3 className="text-[10px] font-black text-gray-400 tracking-widest uppercase mb-3 pl-2">
         Recent Results
       </h3>
       
-      {/* 🚀 2x2 Responsive Grid Layout System */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {matches.map((match: MatchRecord) => {
           const isTeam1Winner = match.winning_team === 'team_1';
@@ -48,38 +51,53 @@ export default async function RecentMatches() {
           return (
             <div 
               key={match.id} 
-              className="bg-white rounded-[20px] p-4 shadow-sm border border-gray-100 flex items-center justify-between transition-all hover:shadow-md"
+              // 🎨 THE MAGIC: Added a thick deep blue left border (border-l-[6px] border-[#1E3A8A])
+              className="bg-white rounded-[16px] p-4 shadow-sm border border-gray-100 border-l-[6px] border-l-[#00D68F] flex flex-col gap-3 transition-all hover:shadow-md"
             >
-              {/* Left Column: Player Identities */}
-              <div className="flex flex-col gap-1.5 min-w-0">
-                {/* Winners */}
-                <div className="flex items-center gap-2 min-w-0">
-                  <div className="w-1.5 h-1.5 rounded-full bg-[#00D68F] shrink-0 shadow-[0_0_6px_rgba(0,214,143,0.6)]"></div>
-                  <span className="text-sm font-black text-gray-900 tracking-tight truncate">
-                    {winners?.join(' & ') || 'Unknown'}
-                  </span>
-                  <span className="text-[9px] font-bold text-[#00D68F] bg-[#00D68F]/10 px-1 py-0.25 rounded shrink-0">
-                    +{pointsEarned}
+              {/* Top Meta Row (Date & Match Type) */}
+              <div className="flex justify-between items-center border-b border-gray-100 pb-2">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                  {formatMatchDate(match.created_at)}
+                </span>
+                {/* 🎨 THE MAGIC: Solid deep blue pill with white text */}
+                <span className="text-[9px] font-black text-white bg-[#00D68F] px-2.5 py-0.5 rounded-full uppercase tracking-widest shadow-sm">
+                  {match.match_type}
+                </span>
+              </div>
+
+              {/* BOTTOM: Players & Score */}
+              <div className="flex items-center justify-between">
+                
+                {/* Left Column: Player Identities */}
+                <div className="flex flex-col gap-1.5 min-w-0">
+                  {/* Winners (Kept green so "Winning" stays consistent across the app) */}
+                  <div className="flex items-center gap-2 min-w-0">
+                    <div className="w-1.5 h-1.5 rounded-full bg-[#00D68F] shrink-0 shadow-[0_0_6px_rgba(0,214,143,0.6)]"></div>
+                    <span className="text-sm font-black text-slate-900 tracking-tight truncate">
+                      {winners?.join(' & ') || 'Unknown'}
+                    </span>
+                    <span className="text-[9px] font-bold text-[#00D68F] bg-[#00D68F]/10 px-1 py-0.25 rounded shrink-0">
+                      +{pointsEarned}
+                    </span>
+                  </div>
+                  
+                  {/* Losers */}
+                  <div className="flex items-center gap-2 min-w-0">
+                    <div className="w-1.5 h-1.5 rounded-full bg-slate-200 shrink-0"></div>
+                    <span className="text-xs font-semibold text-slate-400 tracking-tight truncate">
+                      {losers?.join(' & ') || 'Unknown'}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Right Column: Score Only */}
+                <div className="text-right shrink-0 pl-2">
+                  {/* 🎨 THE MAGIC: Score is now a dark navy to match the theme */}
+                  <span className="text-sm font-black text-black tracking-tighter">
+                    {match.score ? match.score : "Win"}
                   </span>
                 </div>
                 
-                {/* Losers */}
-                <div className="flex items-center gap-2 min-w-0">
-                  <div className="w-1.5 h-1.5 rounded-full bg-gray-200 shrink-0"></div>
-                  <span className="text-xs font-semibold text-gray-400 tracking-tight truncate">
-                    {losers?.join(' & ') || 'Unknown'}
-                  </span>
-                </div>
-              </div>
-
-              {/* Right Column: Dynamic Score Matrix */}
-              <div className="text-right flex flex-col justify-center shrink-0 pl-2">
-                <span className="text-sm font-black text-gray-800 tracking-tighter">
-                  {match.score ? match.score : "Win"}
-                </span>
-                <span className="text-[8px] font-bold text-gray-400 uppercase tracking-widest mt-0.5">
-                  {match.match_type}
-                </span>
               </div>
             </div>
           );

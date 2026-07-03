@@ -3,6 +3,12 @@
 import { createClient } from '@/lib/supabase/server';
 import { revalidatePath } from 'next/cache';
 
+// ⚙️ SCORING CONSTANTS (Easy to scale/change later!)
+const SCORING = {
+  SINGLES_WIN: 100,
+  DOUBLES_WIN: 50,
+};
+
 // ------------------------------------------------------------------
 // ACTION 1: START A NEW MATCH
 // ------------------------------------------------------------------
@@ -51,10 +57,10 @@ export async function resolveMatchAction(
     .update({ status: 'completed', winning_team: dbWinningTeam })
     .eq('id', matchId);
 
-  // 2. Determine who won and lost
+  // 2. Determine who won and lost and the point value
   const winners = winningTeam === 1 ? team1 : team2;
   const losers = winningTeam === 1 ? team2 : team1;
-  const pointsEarned = matchType === 'singles' ? 100 : 50;
+  const pointsEarned = matchType === 'singles' ? SCORING.SINGLES_WIN : SCORING.DOUBLES_WIN;
 
   // 3. Update Winners (+1 Win, +Points)
   for (const player of winners) {
@@ -79,12 +85,11 @@ export async function resolveMatchAction(
     }
   }
 
-  // 4. Update Losers (+1 Loss, -Points)
+  // 4. Update Losers (+1 Loss, NO Point Deduction)
   for (const player of losers) {
-    //  We must select 'total_points' here now so we can subtract from it!
     const { data, error: fetchError } = await supabase
       .from('players')
-      .select('losses, total_points')
+      .select('losses') 
       .eq('name', player)
       .single();
 
@@ -95,8 +100,7 @@ export async function resolveMatchAction(
         .from('players')
         .update({
           losses: (data.losses || 0) + 1,
-          //Deduct the exact same amount the winner earned
-          total_points: (data.total_points || 0) - pointsEarned
+          // 🛑 In a cumulative system, losers don't lose points!
         })
         .eq('name', player);
 
@@ -128,7 +132,7 @@ export async function addPlayerAction(name: string, avatarUrl?: string) {
     .insert({
       name: trimmedName,
       avatar_url: avatarUrl?.trim() || null,
-      total_points: 1500, // Syncs perfectly with your reset baseline!
+      total_points: 0, // 🟢 CHANGED: Everyone now starts at exactly 0
       wins: 0,
       losses: 0,
     });

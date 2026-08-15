@@ -25,7 +25,8 @@ export default async function Leaderboard({ isAdmin = false }: { isAdmin?: boole
   const { data: playersData, error: playersError } = await supabase
     .from('players')
     .select('*')
-    .order('total_points', { ascending: false });
+    .order('total_points', { ascending: false })
+    .order('wins', { ascending: false });
 
   if (playersError) console.error("🚨 SUPABASE PLAYERS ERROR:", playersError.message);
 

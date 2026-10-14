@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import LogMatchModal from '@/components/LogMatchModal';
 import LiveMatchCard from '@/components/LiveMatchCard';
+import ScoreGameModal from '@/components/ScoreGameModal';
 import AddPlayerModal from '@/components/AddPlayerModal';
 import { Plus, Radio, Medal } from 'lucide-react';
 
@@ -218,13 +219,12 @@ export default async function Leaderboard({ isAdmin = false }: { isAdmin?: boole
           })}
         </div>
 
-        {/* 🔒 Master Admin Control Dock */}
-        {isAdmin && (
+        {/* Control Dock: scoring is open to everyone, match/player management is admin-only */}
           <div className="fixed bottom-6 inset-x-0 mx-auto w-[calc(100%-2rem)] max-w-sm z-50 flex flex-col gap-2.5 px-2 sm:px-0">
-            <LogMatchModal players={safePlayers} />
-            <AddPlayerModal />
+            {isAdmin && <LogMatchModal players={safePlayers} />}
+            <ScoreGameModal players={safePlayers} />
+            {isAdmin && <AddPlayerModal />}
           </div>
-        )}
 
       </div>
     </main>

@@ -153,3 +153,24 @@ export async function addPlayerAction(name: string, avatarUrl?: string) {
   
   return { success: true };
 }
+
+// ------------------------------------------------------------------
+// ACTION 4: SAVE A SCORED GAME (finished in the Score Game modal)
+// ------------------------------------------------------------------
+export async function scoreGameAction(
+  matchType: 'singles' | 'doubles',
+  team1: string[],
+  team2: string[],
+  winningTeam: 1 | 2,
+  score: string
+) {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from('matches')
+    .insert({ match_type: matchType, status: 'in_progress', team_1_players: team1, team_2_players: team2, score })
+    .select('id')
+    .single();
+
+  if (error) return { success: false, error: error.message };
+  return resolveMatchAction(data.id, winningTeam, team1, team2, matchType);
+}

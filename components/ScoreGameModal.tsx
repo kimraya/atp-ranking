@@ -102,12 +102,14 @@ export default function ScoreGameModal({ players }: { players: { id: string | nu
 
             <div className="grid grid-cols-2 gap-3 text-[10px] font-black text-gray-400 uppercase tracking-widest">
               <label>Sets
-                <input type="number" min={1} max={5} value={numSets} className={sel + ' mt-1'}
-                  onChange={e => setFormat(Math.max(1, +e.target.value || 1), gps)} />
+                <input type="number" min={1} max={5} defaultValue={numSets} inputMode="numeric" className={sel + ' mt-1'}
+                  onBlur={e => { if (!+e.target.value) e.target.value = String(numSets); }}
+                  onChange={e => +e.target.value >= 1 && setFormat(Math.min(5, +e.target.value), gps)} />
               </label>
               <label>Games per set
-                <input type="number" min={1} max={20} value={gps} className={sel + ' mt-1'}
-                  onChange={e => setFormat(numSets, Math.max(1, +e.target.value || 1))} />
+                <input type="number" min={1} max={20} defaultValue={gps} inputMode="numeric" className={sel + ' mt-1'}
+                  onBlur={e => { if (!+e.target.value) e.target.value = String(gps); }}
+                  onChange={e => +e.target.value >= 1 && setFormat(numSets, Math.min(20, +e.target.value))} />
               </label>
             </div>
 

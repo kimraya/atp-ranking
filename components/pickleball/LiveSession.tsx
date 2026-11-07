@@ -319,7 +319,7 @@ function QueueTab({ now }: { now: number }) {
       {adding && (
         <Modal title="Add player" onClose={() => setAdding(false)}>
           <input autoFocus value={name} onChange={e => setName(e.target.value)} onKeyDown={e => e.key === 'Enter' && submit()} placeholder="Name" aria-label="Player name"
-            className="w-full bg-white border border-gray-200 rounded-xl px-3 py-2.5 text-sm font-bold min-h-[44px]" />
+            className="w-full bg-white border border-gray-200 rounded-xl px-3 py-2.5 text-base font-bold min-h-[44px]" />
           <Stars value={rating} onChange={setRating} />
           <Btn tone="green" full disabled={!name.trim()} onClick={submit}>Check in</Btn>
         </Modal>

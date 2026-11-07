@@ -66,7 +66,7 @@ export default function SessionSetup() {
       <input type="checkbox" checked={on} onChange={e => change(e.target.checked)} className="w-5 h-5 accent-[#00D68F]" />
     </label>
   );
-  const field = 'bg-white border border-gray-200 rounded-xl px-3 py-2.5 text-xs font-bold text-gray-800 min-h-[44px]';
+  const field = 'bg-white border border-gray-200 rounded-xl px-3 py-2.5 text-base font-bold text-gray-800 min-h-[44px]';
 
   return (
     <div className="space-y-4 px-3 sm:px-0 pb-32">

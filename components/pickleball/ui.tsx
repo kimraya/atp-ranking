@@ -73,7 +73,7 @@ export function Modal({ title, onClose, children }: { title: string; onClose: ()
   );
 }
 
-const importField = 'w-full bg-white border border-gray-200 rounded-xl px-3 py-2.5 text-xs font-bold text-gray-800';
+const importField = 'w-full bg-white border border-gray-200 rounded-xl px-3 py-2.5 text-base font-bold text-gray-800';
 export function ImportModal({ onClose }: { onClose: () => void }) {
   const { dispatch } = useApp();
   const [text, setText] = useState('');

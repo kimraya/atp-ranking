@@ -6,7 +6,7 @@ import { finishedOf, type Session } from '@/lib/session/sessionReducer';
 import { leaderboard, sessionStandings } from '@/lib/session/stats';
 import { Btn, Card, Empty, IconBtn, ImportModal, Label, Modal, RankBadge, Stars, useApp } from './ui';
 
-const field = 'bg-white border border-gray-200 rounded-xl px-3 py-2.5 text-xs font-bold text-gray-800 min-h-[44px]';
+const field = 'bg-white border border-gray-200 rounded-xl px-3 py-2.5 text-base font-bold text-gray-800 min-h-[44px]';
 
 // ---------------- Players ----------------
 export function PlayersView() {
